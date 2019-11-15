@@ -8,15 +8,15 @@
 import Jobs
 import NIO
 
-struct JobDataMock: JobData {}
-struct JobDataOtherMock: JobData {}
+struct JobDataMock: Codable {}
+struct JobDataOtherMock: Codable {}
 
-struct JobMock<T: JobData>: Job {
+struct JobMock<T: Codable>: Job {
     func dequeue(_ context: JobContext, _ data: T) -> EventLoopFuture<Void> {
-        return context.eventLoop.future()
+        return context.eventLoop.future(())
     }
     
     func error(_ context: JobContext, _ error: Error, _ data: T) -> EventLoopFuture<Void> {
-        return context.eventLoop.future()
+        return context.eventLoop.future(())
     }
 }
