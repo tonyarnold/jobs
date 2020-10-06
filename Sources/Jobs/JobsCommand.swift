@@ -88,14 +88,13 @@ public class JobsCommand: Command, Service {
             try self.startJobsWorker(on: queue)
         }
 
-        return try self.container.make(EventLoopGroup.self).future()
+        return try self.container.eventLoop.future()
     }
 
     private func startJobsWorker(on queue: JobsQueue) throws {
         var workers: [JobsWorker] = []
 
-        let eventLoopGroup = try self.container.make(EventLoopGroup.self)
-        if let iterator = eventLoopGroup.makeIterator() {
+        if let iterator = self.container.eventLoop.makeIterator() {
             for eventLoop in iterator {
                 let worker = JobsWorker(
                     configuration: try self.container.make(),
@@ -114,8 +113,7 @@ public class JobsCommand: Command, Service {
     private func startScheduledWorker() throws {
         var scheduledWorkers: [ScheduledJobsWorker] = []
 
-        let eventLoopGroup = try self.container.make(EventLoopGroup.self)
-        if let iterator = eventLoopGroup.makeIterator() {
+        if let iterator = self.container.eventLoop.makeIterator() {
             for eventLoop in iterator {
                 let worker = ScheduledJobsWorker(
                     configuration: try self.container.make(),
@@ -146,9 +144,8 @@ public class JobsCommand: Command, Service {
             futures += scheduledWorkers.map { $0.onShutdown }
         }
 
-        let eventLoopGroup = try self.container.make(EventLoopGroup.self)
         try! EventLoopFuture<Void>
-            .andAll(futures, eventLoop: eventLoopGroup.next()).wait()
+            .andAll(futures, eventLoop: self.container.eventLoop.next()).wait()
     }
 }
 
