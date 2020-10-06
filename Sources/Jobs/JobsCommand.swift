@@ -88,7 +88,7 @@ public class JobsCommand: Command, Service {
             try self.startJobsWorker(on: queue)
         }
 
-        return try self.container.eventLoop.future()
+        return self.container.eventLoop.future()
     }
 
     private func startJobsWorker(on queue: JobsQueue) throws {
